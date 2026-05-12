@@ -59,9 +59,34 @@ intended to:
 **Publisher:** NHS England, Financial Accounting & Reporting
 **Statistical type:** Audited annual financial returns
 **Vintage held:** 2021/22 to 2024/25 (four audited financial years; 2025/26 publishes in spring 2027)
-**Granularity:** NHS trust / Foundation Trust × financial year
+**Granularity:** NHS trust × financial year (the published "NHS trusts" file covers
+non-Foundation Trusts; the Foundation Trust panel is published as a separate dataset
+and is **not** loaded by the current readers)
 **Licence:** Open Government Licence v3.0
 **Index page:** https://www.england.nhs.uk/financial-accounting-and-reporting/nhs-providers-tac-data-publications/
+
+**Pay schedule extraction (TAC09 Staff).** Implemented in
+`pwr_elasticity.io.read_tac`, with constants centralised in
+`pwr_elasticity._constants`. Each TAC09 row carries a `MainCode` of the form
+`A09{CY|PY}{NN}{suffix}` where the suffix is empty (Total), `P`
+(Permanently employed substantive staff), or `O` (Other staff — **Bank +
+Agency + Contract for Services combined**). The reader extracts SubCode
+`STA0366` (Net employee benefits expenditure) for the current-year
+columns and emits three pay columns:
+
+| Column | Definition | TAC mapping |
+|---|---|---|
+| `substantive_pay_gbp` | Substantive staff cost (£) | `A09CY01P` × `STA0366` |
+| `other_staff_pay_gbp` | Combined Bank + Agency + Contract (£) | `A09CY01O` × `STA0366` |
+| `total_pay_gbp` | Total staff cost (£) | `A09CY01` × `STA0366` |
+
+Values are stored in £ thousands in the source and scaled to £ at read time.
+
+**Important limitation.** TAC does **not** separate Bank from Agency in the
+published consolidated dataset; the split is reported only in each provider's
+own published annual-report notes. For the bank-versus-agency elasticity
+the project relies on either (a) Provider Workforce Return data from
+Foundry, or (b) the case-study figures in `data/rec_foi/` (see §3.9).
 
 | File | Year | URL |
 |---|---|---|
