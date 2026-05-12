@@ -222,3 +222,7 @@ __marimo__/
 # data/DATA_DICTIONARY.md.
 /data/*
 !/data/DATA_DICTIONARY.md
+
+# Build pipeline outputs (panel, features, models, figures, report).
+# All deliverables regenerate from /data/ + /src/.
+/outputs/
