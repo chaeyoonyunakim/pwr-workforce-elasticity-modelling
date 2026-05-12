@@ -89,6 +89,12 @@ build pipeline will create. `outputs/` will be added to `.gitignore`.
 
 ```
 .
+├── .github/
+│   └── workflows/
+│       └── no-data-leak.yml       CI gate — blocks data and notebook outputs from main
+├── .pre-commit-config.yaml        local enforcement of the same rules
+├── scripts/
+│   └── check_no_data_files.sh     shared rule set (also referenced by CI)
 ├── plan/
 │   └── plan.md                    this document
 ├── src/
@@ -122,13 +128,21 @@ satisfied.
 - Initialise `pyproject.toml` pinning Python ≥ 3.11. Dependencies: `pandas`,
   `pyarrow`, `numpy`, `openpyxl`, `pyjanitor`, `statsmodels`, `linearmodels`,
   `scikit-learn`, `matplotlib`, `seaborn`, `plotly`, `jupyterlab`,
-  `pytest`, `ruff`, `black`.
+  `pytest`, `pytest-cov`, `ruff`, `black`, `pre-commit`, `nbstripout`.
 - Create the directory tree in §6.
-- Add a pre-commit configuration running `ruff`, `black` and `pytest -q`.
+- Extend the existing `.pre-commit-config.yaml` (which already enforces the
+  data-leak controls in §8.1) to additionally run `ruff`, `black` and
+  `pytest -q --no-header --quiet`. Run `pre-commit install` so commits
+  are gated locally; CI runs the same checks via
+  `.github/workflows/no-data-leak.yml`.
+- Install the project-managed `nbstripout` git filter
+  (`nbstripout --install`) so notebook outputs are scrubbed at staging
+  time as well as at commit time.
 - Append `/outputs/` to `.gitignore`.
 
-**Acceptance:** `pip install -e .` succeeds; `pytest` runs (zero tests OK
-at this stage); `ruff check .` is clean.
+**Acceptance:** `pip install -e .` succeeds; `pre-commit run --all-files`
+is clean; `pytest` runs (zero tests OK at this stage); `ruff check .` is
+clean; the `no-data-leak` CI workflow passes on the seed commit.
 
 ### T2 — Source readers (`src/pwr_elasticity/io.py`)
 One pure function per data product, each returning a tidy `pandas.DataFrame`
@@ -286,6 +300,47 @@ two consecutive runs with the same seed.
 produces byte-identical artefacts (modulo embedded timestamps).
 
 ## 8. Cross-cutting quality bar
+
+### 8.1 Data-leak prevention (mandatory, defence-in-depth)
+
+The repository ships with three coordinated controls, all of which must
+remain in force throughout the project. The agent must not weaken any of
+them without explicit reviewer sign-off.
+
+| Layer | Artefact | What it blocks |
+|---|---|---|
+| Ignore policy | `.gitignore` (`/data/*` with the sole exception of `DATA_DICTIONARY.md`) | Accidental staging of any data file under `/data/`. |
+| Pre-commit (local) | `.pre-commit-config.yaml` running `nbstripout`, `check-added-large-files` (≤ 512 KB), and the local `scripts/check_no_data_files.sh` hook | Notebook outputs, execution counts, cell attachments, widget state, large binaries, and any file with a data-bearing extension or under `/data/`. |
+| Continuous integration | `.github/workflows/no-data-leak.yml` (runs on every PR and push to main) | The same conditions as the pre-commit hook, applied to every tracked file. Acts as the safety net when `git add -f` or a missing local hook bypasses the pre-commit. |
+
+Blocked extensions (case-insensitive, list maintained in
+`scripts/check_no_data_files.sh` and mirrored in the CI workflow): csv,
+tsv, psv, xls, xlsx, xlsm, xlsb, ods, parquet, feather, arrow, orc, avro,
+sav, dta, sas7bdat, rdata, rds, pkl, pickle, joblib, npz, npy, mat, h5,
+hdf5, nc, db, sqlite, sqlite3, pdf, gz, bz2, xz, zst, zip, tar, 7z, rar.
+
+Notebook authoring rules:
+
+- All `.ipynb` files committed to the repository must be output-free.
+  `nbstripout` (installed both as a pre-commit hook and as a git filter
+  via `nbstripout --install`) handles this automatically; do not commit
+  notebooks edited with `nbstripout` disabled.
+- Cell metadata, kernel metadata and Jupyter widget state are also
+  stripped. Do not embed plots inline as base64; persist figures to
+  `outputs/figures/` and reference them from markdown.
+- Do not include `print(df)` or `df.head()` calls that would render
+  patient-identifiable or commercially sensitive content if the notebook
+  ever picked up real PWR data. Replace exploratory prints with assertions
+  on shape or hash.
+
+If the CI check fails, the fix is always:
+
+1. `git rm --cached <file>` to unstage,
+2. move the file under `/data/` (or delete) so the ignore policy catches
+   it next time,
+3. for notebooks, `nbstripout <file>.ipynb` then re-stage.
+
+### 8.2 Code quality
 
 - All code passes `ruff check .` and `black --check .`.
 - All public functions carry NumPy-style docstrings and type hints.
