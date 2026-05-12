@@ -1,12 +1,14 @@
 # Pre-commit hooks for PWR workforce elasticity modelling.
 #
 # Purpose: prevent any data, notebook output, or large binary from entering
-# the commit graph. The local `no-data-files` hook mirrors the rules
-# enforced in CI by .github/workflows/no-data-leak.yml; the `nbstripout`
-# hook clears Jupyter notebook outputs, execution counts, cell metadata,
-# and kernel metadata before the file reaches the index.
+# the commit graph, and enforce code quality on Python sources before the
+# CI runs.
 #
 # Install once with `pre-commit install` after cloning the repository.
+# `pytest` is wired as a pre-push hook so commits stay fast while pushes
+# remain gated.
+
+default_install_hook_types: [pre-commit, pre-push]
 
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
@@ -32,6 +34,18 @@ repos:
           - --drop-empty-cells
           - --strip-init-cells
 
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.6.9
+    hooks:
+      - id: ruff
+        args: ["--fix", "--exit-non-zero-on-fix"]
+      - id: ruff-format
+
+  - repo: https://github.com/psf/black
+    rev: 24.10.0
+    hooks:
+      - id: black
+
   - repo: local
     hooks:
       - id: no-data-files
@@ -41,3 +55,12 @@ repos:
         language: script
         pass_filenames: true
         types: [file]
+
+      - id: pytest
+        name: pytest (pre-push)
+        description: Run the test suite before pushing.
+        entry: pytest -q --no-header --quiet
+        language: system
+        pass_filenames: false
+        stages: [pre-push]
+        types: [python]
