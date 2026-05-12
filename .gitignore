@@ -216,3 +216,9 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Local datasets — only the data dictionary is tracked; everything else
+# under /data/ stays local. Re-fetch bulk sources from URLs documented in
+# data/DATA_DICTIONARY.md.
+/data/*
+!/data/DATA_DICTIONARY.md
