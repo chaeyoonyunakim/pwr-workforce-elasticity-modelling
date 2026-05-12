@@ -1,0 +1,43 @@
+# Pre-commit hooks for PWR workforce elasticity modelling.
+#
+# Purpose: prevent any data, notebook output, or large binary from entering
+# the commit graph. The local `no-data-files` hook mirrors the rules
+# enforced in CI by .github/workflows/no-data-leak.yml; the `nbstripout`
+# hook clears Jupyter notebook outputs, execution counts, cell metadata,
+# and kernel metadata before the file reaches the index.
+#
+# Install once with `pre-commit install` after cloning the repository.
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-merge-conflict
+      - id: check-yaml
+      - id: check-toml
+      - id: check-json
+      - id: check-case-conflict
+      - id: check-added-large-files
+        args: ["--maxkb=512"]
+
+  - repo: https://github.com/kynan/nbstripout
+    rev: 0.7.1
+    hooks:
+      - id: nbstripout
+        # Strip everything that could carry data: cell outputs, execution
+        # counts, cell metadata, kernel info, and widget state.
+        args:
+          - --drop-empty-cells
+          - --strip-init-cells
+
+  - repo: local
+    hooks:
+      - id: no-data-files
+        name: block data files and /data/ paths
+        description: Refuse to stage data-bearing extensions or anything under /data/ except DATA_DICTIONARY.md.
+        entry: scripts/check_no_data_files.sh
+        language: script
+        pass_filenames: true
+        types: [file]
