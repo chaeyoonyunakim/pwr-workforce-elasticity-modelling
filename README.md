@@ -4,6 +4,11 @@
 agency-restriction policy, using the Provider Workforce Return (PWR) and
 audited open-data substitutes.**
 
+**Analytical window:** financial years 2021/22 to 2025/26 inclusive.
+Audited TAC data is available for 2021/22–2024/25; the in-flight 2025/26
+year is observed through monthly operational sources and through the
+in-year policy treatment indicators.
+
 ---
 
 ## 1. Background
@@ -98,9 +103,11 @@ cited there.
 ├── README.md                         this document
 ├── LICENSE                           MIT (project code)
 ├── .gitignore                        excludes /data/* except DATA_DICTIONARY.md
+├── plan/
+│   └── plan.md                       agent-runnable build plan (requirements, tasks, acceptance criteria)
 └── data/
     ├── DATA_DICTIONARY.md            authoritative source manifest, variable mapping
-    ├── tac_provider_accounts/        TAC 2019/20–2023/24 (NHSE OGL v3.0)
+    ├── tac_provider_accounts/        TAC 2021/22–2024/25 (NHSE OGL v3.0)
     ├── workforce_stats/              HCHS staff in post and turnover (NHSE OGL v3.0)
     ├── vacancy_stats/                NHS Vacancy Statistics Apr-2015 to Dec-2025
     ├── staff_earnings/               NHS Staff Earnings Estimates to Oct-2025

@@ -2,6 +2,7 @@
 
 **Project:** PWR workforce elasticity modelling
 **Scope:** Source manifest, variable mapping, granularity, vintage, licence
+**Analytical window:** Financial years 2021/22 to 2025/26 inclusive
 **Status:** Open-data substitute set assembled in advance of Foundry PWR access
 
 This document is the authoritative reference for the data assets supporting
@@ -57,25 +58,24 @@ intended to:
 
 **Publisher:** NHS England, Financial Accounting & Reporting
 **Statistical type:** Audited annual financial returns
-**Vintage held:** 2019/20 to 2023/24 (five financial years)
+**Vintage held:** 2021/22 to 2024/25 (four audited financial years; 2025/26 publishes in spring 2027)
 **Granularity:** NHS trust / Foundation Trust × financial year
 **Licence:** Open Government Licence v3.0
 **Index page:** https://www.england.nhs.uk/financial-accounting-and-reporting/nhs-providers-tac-data-publications/
 
 | File | Year | URL |
 |---|---|---|
-| `TAC-data-published-in-NHS-trusts-accounts-for-2019-20.xlsx` | 2019/20 | https://www.england.nhs.uk/wp-content/uploads/2021/04/TAC-data-published-in-NHS-trusts-accounts-for-2019-20.xlsx |
-| `TAC-data-published-in-NHS-trust-accounts-for-2020-21.xlsx` | 2020/21 | https://www.england.nhs.uk/wp-content/uploads/2022/07/TAC-data-published-in-NHS-trust-accounts-for-2020-21.xlsx |
 | `TAC-data-published-in-NHS-trusts-accounts-for-2021-22.xlsx` | 2021/22 | https://www.england.nhs.uk/wp-content/uploads/2023/07/TAC-data-published-in-NHS-trusts-accounts-for-2021-22.xlsx |
 | `TAC-data-published-in-NHS-trusts-accounts-for-2022-23.xlsx` | 2022/23 | https://www.england.nhs.uk/wp-content/uploads/2024/04/TAC-data-published-in-NHS-trusts-accounts-for-2022-23.xlsx |
 | `TAC-data-published-in-NHS-trusts-accounts-for-2023-24.xlsx` | 2023/24 | https://www.england.nhs.uk/wp-content/uploads/2025/01/TAC-data-published-in-NHS-trusts-accounts-for-2023-24.xlsx |
+| `TAC-data-published-in-NHS-trusts-accounts-for-2024-25.xlsx` | 2024/25 | https://www.england.nhs.uk/wp-content/uploads/2026/04/TAC-data-published-in-NHS-trusts-accounts-for-2024-25.xlsx |
 
 TAC schedules disaggregate operating expenses into substantive pay, **Bank
 pay**, **agency pay**, and non-pay. This is the sole open series providing
-the Bank / Agency pay split at provider level.
-
-Pre-2019/20 vintages were published by NHS Improvement and are mirrored at
-the [UK Government Web Archive](https://webarchive.nationalarchives.gov.uk/20200327162233/https://improvement.nhs.uk/resources/trust-accounts-consolidation-tac-data-publications-background-information/).
+the Bank / Agency pay split at provider level. The four held vintages give
+a balanced 213-provider × 4-year panel; the in-flight 2025/26 financial
+year is observed in real time through monthly operational sources but does
+not yet have an audited TAC submission.
 
 ### 3.2 `workforce_stats/hchs_oct_2025/` — NHS Workforce Statistics, HCHS
 
@@ -155,14 +155,23 @@ AfC bands into £ values for the agency price-cap comparison.
 
 #### Discrete policy events (to be encoded as treatment indicators)
 
+In-window events (within the 2021/22–2025/26 analytical horizon):
+
+| Date | Event |
+|---|---|
+| Sep 2022 | Agency expenditure ceiling re-introduced into NHS System Oversight[^7] |
+| 2023/24–2024/25 | Successive agency rule revisions and tightening of framework compliance[^7] |
+| 1 Jul 2025 | Chief Executive sign-off required for all band 2/3 agency shifts[^7] |
+| 2026 | 30% short-term agency reduction target; zero off-framework target by 2029[^13] |
+
+Pre-window context (preceded the analytical horizon but established the
+regulatory regime in force at baseline):
+
 | Date | Event |
 |---|---|
 | 23 Nov 2015 | Agency price caps introduced (phased to AfC + 55% by April 2016)[^7] |
 | 1 Apr 2016 | Mandatory procurement via approved framework agreements[^7] |
 | 16 Sep 2019 | Admin and estates substitution rule (mandatory Bank or substantive)[^7] |
-| Sep 2022 | Agency expenditure ceiling re-introduced into NHS System Oversight[^7] |
-| 1 Jul 2025 | Chief Executive sign-off required for all band 2/3 agency shifts[^7] |
-| 2026 | 30% short-term agency reduction target; zero off-framework target by 2029[^13] |
 
 ### 3.7 `ae_performance/` — A&E Attendances and Emergency Admissions
 
@@ -207,7 +216,7 @@ data page](https://www.england.nhs.uk/statistics/statistical-work-areas/rtt-wait
 | File | Content |
 |---|---|
 | `rec_foi_top5_shift_costs.csv` | Six provider-year observations: Nottingham UH, Imperial College Healthcare, Manchester University, Newcastle upon Tyne — mean cost of top-5 Bank vs Agency shifts |
-| `rec_foi_annual_spend.csv` | Manchester University NHS Foundation Trust, total Bank and agency spend 2020/21 vs 2024/25 |
+| `rec_foi_annual_spend.csv` | Manchester University NHS Foundation Trust, total Bank and agency spend 2024/25 (in-window observation; the published 2020/21 baseline used in REC narrative falls outside the analytical window) |
 | `SOURCE_NOTES.md` | Provenance, limitations and FOI replication path |
 
 This is the only open source providing shift-level Bank vs Agency cost
