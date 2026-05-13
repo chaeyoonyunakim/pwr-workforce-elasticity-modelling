@@ -4,7 +4,7 @@
 expenditure to agency-restriction policy, using the Provider Workforce
 Return (PWR) and audited open-data substitutes.**
 
-[![CI](https://github.com/chaeyoonyunakim/pwr-workforce-elasticity-modelling/actions/workflows/no-data-leak.yml/badge.svg)](https://github.com/chaeyoonyunakim/pwr-workforce-elasticity-modelling/actions/workflows/no-data-leak.yml)
+[![CI](https://github.com/chaeyoonyunakim/pwr-workforce-elasticity-modelling/actions/workflows/ci.yml/badge.svg)](https://github.com/chaeyoonyunakim/pwr-workforce-elasticity-modelling/actions/workflows/ci.yml)
 
 | | |
 |---|---|
