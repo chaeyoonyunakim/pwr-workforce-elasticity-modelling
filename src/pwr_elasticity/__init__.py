@@ -1,6 +1,6 @@
 """PWR workforce elasticity modelling.
 
-See plan/plan.md and README.md for project scope, analytical window,
+See plan/PLAN.md and README.md for project scope, analytical window,
 and task DAG.
 """
 

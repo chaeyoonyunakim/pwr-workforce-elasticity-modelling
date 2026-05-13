@@ -6,7 +6,7 @@ readers in :mod:`pwr_elasticity.io` free of magic numbers.
 
 from __future__ import annotations
 
-# Analytical window — see plan/plan.md §3 and data/DATA_DICTIONARY.md §1.
+# Analytical window — see plan/PLAN.md §3 and data/DATA_DICTIONARY.md §1.
 WINDOW_START_FY: str = "2021/22"
 WINDOW_END_FY: str = "2025/26"
 WINDOW_START_DATE: str = "2021-04-01"  # Start of FY 2021/22

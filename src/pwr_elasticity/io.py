@@ -5,7 +5,7 @@ explicit dtypes and date parsing, and observations restricted to the
 analytical window (financial years 2021/22 to 2025/26 inclusive).
 
 See ``data/DATA_DICTIONARY.md`` for the canonical source metadata and
-``plan/plan.md`` §T2 for the acceptance criteria.
+``plan/PLAN.md`` §T2 for the acceptance criteria.
 """
 
 from __future__ import annotations

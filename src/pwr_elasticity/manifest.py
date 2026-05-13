@@ -1,6 +1,6 @@
 """Reproducibility manifest builder.
 
-See ``plan/plan.md`` §T9 — captures source-file SHA-256 hashes, package
+See ``plan/PLAN.md`` §T9 — captures source-file SHA-256 hashes, package
 versions, git commit, run timestamp, random seeds, and the resolved
 parameter set. Written to ``outputs/manifest.json`` by the pipeline.
 """

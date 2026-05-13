@@ -2,7 +2,7 @@
 
 A chronological log of what I (the Claude Code agent, running Claude
 Opus 4.7 in High mode) actioned during this build, and where each step
-landed on `main`. Companion to [`plan.md`](plan.md) — `plan.md` is the
+landed on `main`. Companion to [`PLAN.md`](PLAN.md) — `PLAN.md` is the
 *what to build*, this is the *what I did*.
 
 Step numbers are the order in which I worked. Commit IDs are the
@@ -47,11 +47,11 @@ document (background, three formal research questions, methodology,
 data sources, Vancouver-numbered references). Tightened the data
 dictionary into a publication-style source manifest.
 
-## Step 6 — 5-year window + `plan/plan.md`
+## Step 6 — 5-year window + `plan/PLAN.md`
 
 Culled pre-2021/22 TAC. Downloaded TAC 2024/25 (published April
 2026). Dropped the 2020/21 row from the REC FOI annual-spend extract.
-Wrote `plan/plan.md` as the agent-runnable build brief — T1–T9 task
+Wrote `plan/PLAN.md` as the agent-runnable build brief — T1–T9 task
 DAG with explicit acceptance criteria per stage.
 
 ## Step 7 — First pull request
@@ -78,7 +78,7 @@ Built a three-layer defence: `.github/workflows/no-data-leak.yml`,
 `.pre-commit-config.yaml` with `nbstripout` plus a local data-files
 hook, and `scripts/check_no_data_files.sh` carrying the shared
 blocked-extension list. Added §8.1 *Data-leak prevention* to
-`plan/plan.md`.
+`plan/PLAN.md`.
 
 Landing: `6bac03b` (PR #2 — *Add defence-in-depth controls against
 data leakage*).
@@ -202,7 +202,7 @@ pre-window TAC vintages*).
 
 ## Step 18 — Documentation refresh
 
-Brought `README.md`, `data/DATA_DICTIONARY.md`, `plan/plan.md` and
+Brought `README.md`, `data/DATA_DICTIONARY.md`, `plan/PLAN.md` and
 `reports/README.md` in sync with the shipped state — status banner,
 CI badge, current repo tree, evaluation link, RAP-style
 reproducibility, no Foundation Trusts caveat, full reference list.
