@@ -6,6 +6,43 @@ model end-to-end, starting from the open-data substitute set documented in
 protocol in [`../README.md`](../README.md). This document is the single
 source of truth for what to build, in what order, and to what quality bar.
 
+## Status — shipped
+
+All task IDs T1–T9 from §7 have been delivered and merged into `main`.
+
+| Task | Status | Landing commit |
+|---|---|---|
+| T1 Project skeleton + pre-commit | ✅ | `b1764ea` |
+| T2 Source readers (`io.py`) | ✅ | `bd45311` |
+| T3 Panel assembly (`panel.py`) | ✅ | `e3a2f7a` |
+| T4 Feature engineering (`features.py`) | ✅ | `55bcd88` |
+| T5 Descriptive notebook | ✅ | `3d8d616` |
+| T6 Models — TWFE / RF / heterogeneity / robustness | ✅ |  |
+| T7 Diagnostics — pre-trend / placebo / VIF | ✅ |  |
+| T8 Report + provider risk scores | ✅ | `0a96565` |
+| T9 Pipeline + manifest | ✅ | `2bdd317` |
+| Headline report snapshot | ✅ | `7668322` (PR #12) |
+| Out-of-sample evaluation (eval branch) | ✅ | `2ce7e21` (PR #13) |
+
+**Adaptation captured during T2.** TAC09 publishes staff cost as
+Permanent vs Other (Bank + Agency + Contract for Services combined),
+not Bank vs Agency separately. The plan §T4 features
+`bank_agency_ratio` / `bank_share_of_pay` are therefore implemented as
+`other_to_substantive_ratio` / `other_share_of_pay`. The economic
+interpretation — elasticity of non-substantive workforce expenditure
+with respect to agency-restriction policy — is preserved. The Bank-vs-
+Agency split is available only through PWR (Foundry) or the REC FOI
+case-study extracts. See `../data/DATA_DICTIONARY.md` §3.1.
+
+**Adaptation captured during eval.** The 2019/20 TAC vintage uses
+SubCode `STA0360` instead of `STA0366`; the reader now iterates a
+candidate list (`STA0366` first, `STA0360` fallback). The fix is pinned
+by `tests/test_io.py::test_read_tac_handles_legacy_vintage_subcode_and_columns`.
+
+The plan below is preserved as the original specification. Where the
+delivered implementation differs from the spec, the difference is
+recorded in the relevant module docstring and in the data dictionary.
+
 ---
 
 ## 1. Objective

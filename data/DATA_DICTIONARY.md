@@ -33,9 +33,10 @@ intended to:
 
 | Sprint variable | Operational definition | Open-data source | File / folder |
 |---|---|---|---|
-| Agency pay expenditure (£) | Total spend on agency-procured temporary staff | TAC, annual, provider-level[^2] | `tac_provider_accounts/` |
-| Bank pay expenditure (£) | Total spend on staff Bank shifts (internal or NHSP) | TAC, annual, provider-level[^2] | `tac_provider_accounts/` |
-| `Bank_Agency_Ratio` | Bank £ ÷ Agency £ | Derived from TAC | — |
+| Combined Other-staff pay (£) | Bank + Agency + Contract for Services, annual, audited | TAC, annual, provider-level[^2] (see §3.1) | `tac_provider_accounts/` |
+| Bank pay expenditure (£), isolated | Total spend on staff Bank shifts only | **Not in TAC** — PWR-only or individual provider notes | — |
+| Agency pay expenditure (£), isolated | Total spend on agency-procured temporary staff only | **Not in TAC** — PWR-only or individual provider notes | — |
+| `Bank_Agency_Ratio` (recast as `other_to_substantive_ratio`) | Other-staff £ ÷ Substantive £ | Derived from TAC | — |
 | Override count | Number of shifts paid above the AfC + 55% cap | **No open substitute** — PWR-only | — |
 | `Override_Intensity` | Overrides ÷ Staff-in-Post FTE × 100 | Denominator only from HCHS; numerator PWR-only | — |
 | Staff in Post FTE (substantive) | Substantively employed HCHS workforce | NHS Workforce Statistics[^3] | `workforce_stats/hchs_oct_2025/` |
@@ -70,15 +71,27 @@ and is **not** loaded by the current readers)
 `pwr_elasticity._constants`. Each TAC09 row carries a `MainCode` of the form
 `A09{CY|PY}{NN}{suffix}` where the suffix is empty (Total), `P`
 (Permanently employed substantive staff), or `O` (Other staff — **Bank +
-Agency + Contract for Services combined**). The reader extracts SubCode
-`STA0366` (Net employee benefits expenditure) for the current-year
-columns and emits three pay columns:
+Agency + Contract for Services combined**). The reader emits three pay
+columns for the current-year MainCode set:
 
 | Column | Definition | TAC mapping |
 |---|---|---|
-| `substantive_pay_gbp` | Substantive staff cost (£) | `A09CY01P` × `STA0366` |
-| `other_staff_pay_gbp` | Combined Bank + Agency + Contract (£) | `A09CY01O` × `STA0366` |
-| `total_pay_gbp` | Total staff cost (£) | `A09CY01` × `STA0366` |
+| `substantive_pay_gbp` | Substantive staff cost (£) | `A09CY01P` × Net pay SubCode |
+| `other_staff_pay_gbp` | Combined Bank + Agency + Contract (£) | `A09CY01O` × Net pay SubCode |
+| `total_pay_gbp` | Total staff cost (£) | `A09CY01` × Net pay SubCode |
+
+**Net-pay SubCode candidates** (`TAC_SUBCODE_NET_PAY_CANDIDATES` in
+`pwr_elasticity._constants`). The 2022/23 and later vintages publish
+`STA0366` (Net employee benefits expenditure, excluding capitalised
+costs); earlier vintages (e.g. 2019/20 published April 2021) stop at
+`STA0360` (Total employee benefits costs, excluding capitalised costs).
+The gap between the two codes is capitalised employee benefits
+expenditure (`STA0365`), which is sub-1% of total provider pay. The
+reader tries the candidates in preference order (`STA0366` then
+`STA0360`) and uses the first one populated for each vintage. This
+makes the reader compatible with TAC files from at least 2019/20
+onward — see the holdout evaluation at
+`../reports/evaluation.md` for the validation result.
 
 Values are stored in £ thousands in the source and scaled to £ at read time.
 
@@ -95,10 +108,12 @@ Foundry, or (b) the case-study figures in `data/rec_foi/` (see §3.9).
 | `TAC-data-published-in-NHS-trusts-accounts-for-2023-24.xlsx` | 2023/24 | https://www.england.nhs.uk/wp-content/uploads/2025/01/TAC-data-published-in-NHS-trusts-accounts-for-2023-24.xlsx |
 | `TAC-data-published-in-NHS-trusts-accounts-for-2024-25.xlsx` | 2024/25 | https://www.england.nhs.uk/wp-content/uploads/2026/04/TAC-data-published-in-NHS-trusts-accounts-for-2024-25.xlsx |
 
-TAC schedules disaggregate operating expenses into substantive pay, **Bank
-pay**, **agency pay**, and non-pay. This is the sole open series providing
-the Bank / Agency pay split at provider level. The four held vintages give
-a balanced 213-provider × 4-year panel; the in-flight 2025/26 financial
+TAC schedules disaggregate operating expenses into substantive pay, **Other
+staff pay** (Bank + Agency + Contract for Services, combined), and non-pay
+— see the *Important limitation* note above. The four held vintages give a
+66–68-provider × 4-year panel; the published "NHS trusts" file does *not*
+include the ~145 NHS Foundation Trusts (those are published as a separate
+TAC dataset that is not currently loaded). The in-flight 2025/26 financial
 year is observed in real time through monthly operational sources but does
 not yet have an audited TAC submission.
 

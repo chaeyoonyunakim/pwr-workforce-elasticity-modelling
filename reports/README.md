@@ -24,6 +24,13 @@ package versions, git commit and seed used.
 | File | Generated from | Headline coefficient | 95 % CI |
 |---|---|---:|---|
 | `report.html` | `pwr_elasticity.pipeline` (seed 0, 24 placebo iterations) | -0.287 | [-0.434, -0.140] |
+| `evaluation.md` | `scripts/evaluate_holdout.py` — out-of-sample run against pre-window TAC vintages (2019/20, 2020/21) | n/a (rank-deficient on 2-FY panel, by design) | — |
+
+The evaluation report explains why TWFE rank-deficiency on the 2-FY
+holdout is the *correct* behaviour, lists per-stage holdout results,
+and documents the one reader fix (TAC SubCode candidate list) that
+was needed to handle the older vintage. See
+[evaluation.md](evaluation.md).
 
 ## How to view
 
@@ -39,10 +46,12 @@ GitHub does not render HTML inline. Two practical viewing paths:
 
 ## Important caveats
 
-- **TAC coverage.** The panel covers NHS trusts only; Foundation
-  Trust accounts are published as a separate TAC dataset that is not
-  currently loaded. Adding it would extend the panel to ~213
-  providers.
+- **TAC coverage.** The panel covers NHS trusts only (66–68 providers
+  × 4 years = 263 rows). Foundation Trust accounts are published as a
+  separate TAC dataset that is not currently loaded. Adding it would
+  extend the panel to ~213 providers. The TAC reader now supports
+  older vintages back to at least 2019/20 via the SubCode candidate
+  list — see the holdout evaluation for details.
 - **Identification.** The pre-trend diagnostic rejects strict
   parallel trends and the placebo p-value is ~0.29 on the four-FY
   permutation set. The headline coefficient is therefore reported as
