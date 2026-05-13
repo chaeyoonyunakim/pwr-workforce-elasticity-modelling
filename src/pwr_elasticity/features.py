@@ -1,6 +1,6 @@
 """Feature engineering for the elasticity model.
 
-See ``plan/plan.md`` §T4 for the full feature list and acceptance
+See ``plan/PLAN.md`` §T4 for the full feature list and acceptance
 criteria. Every feature defined here is pinned by a unit test in
 ``tests/test_features.py``.
 

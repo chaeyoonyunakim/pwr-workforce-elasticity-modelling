@@ -148,7 +148,7 @@ build pipeline will create. `outputs/` will be added to `.gitignore`.
 ├── scripts/
 │   └── check_no_data_files.sh     shared rule set (also referenced by CI)
 ├── plan/
-│   └── plan.md                    this document
+│   └── PLAN.md                    this document
 ├── src/
 │   ├── pwr_elasticity/
 │   │   ├── __init__.py

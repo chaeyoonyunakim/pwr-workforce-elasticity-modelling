@@ -113,7 +113,7 @@ for full source URLs, vintages and licensing.
 ├── .github/workflows/
 │   └── ci.yml                           lint + pytest CI
 ├── plan/
-│   └── plan.md                          agent build plan, T1–T9 task DAG
+│   └── PLAN.md                          agent build plan, T1–T9 task DAG
 ├── src/pwr_elasticity/
 │   ├── __init__.py
 │   ├── _constants.py                    analytical window + TAC SubCode candidates

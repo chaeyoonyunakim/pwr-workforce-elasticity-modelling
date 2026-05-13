@@ -1,6 +1,6 @@
 """Model diagnostics — residual analysis, pre-trend tests, placebos, VIF.
 
-See ``plan/plan.md`` §T7. The pre-trend, placebo and VIF tests are the
+See ``plan/PLAN.md`` §T7. The pre-trend, placebo and VIF tests are the
 safety net that decides whether the headline coefficient from
 :mod:`pwr_elasticity.models` is admissible as a causal estimate or
 should be flagged for escalation.

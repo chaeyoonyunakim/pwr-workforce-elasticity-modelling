@@ -1,6 +1,6 @@
 """Elasticity estimators.
 
-See ``plan/plan.md`` §T6 for the four sub-specifications (TWFE primary,
+See ``plan/PLAN.md`` §T6 for the four sub-specifications (TWFE primary,
 Random Forest non-linearity diagnostic, heterogeneity by provider type
 and ICB, robustness).
 

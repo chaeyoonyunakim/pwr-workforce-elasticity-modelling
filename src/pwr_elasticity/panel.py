@@ -2,7 +2,7 @@
 
 Combines outputs from :mod:`pwr_elasticity.io` into a single tidy panel
 keyed on ``(org_code, financial_year)`` over the analytical window. See
-``plan/plan.md`` §T3 for acceptance criteria; merger handling and the
+``plan/PLAN.md`` §T3 for acceptance criteria; merger handling and the
 2022 ICS reorganisation are explicit decisions captured in the
 ``provider_exclusions`` log returned alongside the panel.
 """
