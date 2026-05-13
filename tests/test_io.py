@@ -335,6 +335,62 @@ def test_read_tac_extracts_three_pay_categories(tmp_path: Path) -> None:
     assert row["total_pay_gbp"] == 200_000 * 1_000
 
 
+def _write_tac_xlsx_legacy_vintage(path: Path) -> None:
+    """Write a TAC fixture using the pre-2022/23 vintage conventions.
+
+    Earlier vintages name the value column ``Value number`` and the
+    organisation column ``Organisation Name`` (with a space), and stop
+    at SubCode ``STA0360`` (Total employee benefits costs, excluding
+    capitalised) instead of ``STA0366`` (Net employee benefits
+    expenditure). The reader must accept this older shape so the panel
+    can be extended backwards.
+    """
+    wb = Workbook()
+    ws_list = wb.active
+    ws_list.title = "List of Providers"  # capital P matches 2019/20 vintage
+    ws_list.append(["Full name of Provider", "NHS code", "Region", "Sector", "Comments"])
+    ws_list.append(["Test Legacy Trust", "RYY", "London", "Acute", None])
+    ws_data = wb.create_sheet("All Data")  # capital D matches 2019/20 vintage
+    ws_data.append(
+        [
+            "Organisation Name",
+            "WorkSheetName",
+            "TableID",
+            "MainCode",
+            "RowNumber",
+            "SubCode",
+            "Value number",
+        ]
+    )
+    # Older vintage uses STA0360, not STA0366.
+    ws_data.append(["Test Legacy Trust", "TAC09 Staff", 2, "A09CY01", 64, "STA0360", 150_000])
+    ws_data.append(["Test Legacy Trust", "TAC09 Staff", 2, "A09CY01P", 64, "STA0360", 135_000])
+    ws_data.append(["Test Legacy Trust", "TAC09 Staff", 2, "A09CY01O", 64, "STA0360", 15_000])
+    wb.save(path)
+
+
+def test_read_tac_handles_legacy_vintage_subcode_and_columns(tmp_path: Path) -> None:
+    """The 2019/20 vintage uses STA0360 + 'Value number' column; reader must cope."""
+    fp = tmp_path / "TAC-data-published-in-NHS-trusts-accounts-for-2020-21.xlsx"
+    _write_tac_xlsx_legacy_vintage(fp)
+    # Pull the window outwards so the legacy FY is in-window for this test.
+    # io binds WINDOW_START_FY at module-import time via `from … import`,
+    # so we patch the bound name on the io module itself.
+    original_start = io.WINDOW_START_FY
+    io.WINDOW_START_FY = "2019/20"
+    try:
+        df = io.read_tac(tmp_path)
+    finally:
+        io.WINDOW_START_FY = original_start
+    assert len(df) == 1
+    row = df.iloc[0]
+    assert row["org_code"] == "RYY"
+    assert row["financial_year"] == "2020/21"
+    assert row["substantive_pay_gbp"] == 135_000 * 1_000
+    assert row["other_staff_pay_gbp"] == 15_000 * 1_000
+    assert row["total_pay_gbp"] == 150_000 * 1_000
+
+
 def test_read_tac_skips_out_of_window_files(tmp_path: Path) -> None:
     fp = tmp_path / "TAC-data-published-in-NHS-trusts-accounts-for-2019-20.xlsx"
     _write_tac_xlsx(fp)

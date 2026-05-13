@@ -20,7 +20,7 @@ from pwr_elasticity._constants import (
     TAC_MAINCODE_OTHER_CY,
     TAC_MAINCODE_PERMANENT_CY,
     TAC_MAINCODE_TOTAL_CY,
-    TAC_SUBCODE_NET_PAY,
+    TAC_SUBCODE_NET_PAY_CANDIDATES,
     TAC_THOUSANDS_TO_GBP,
     TAC_WORKSHEET_STAFF,
     WINDOW_END_DATE,
@@ -143,7 +143,17 @@ def read_tac(directory: str | Path) -> pd.DataFrame:
             "OrganisationName" if "OrganisationName" in all_data.columns else "Organisation Name"
         )
         staff = all_data[all_data["WorkSheetName"] == TAC_WORKSHEET_STAFF].copy()
-        staff = staff[staff["SubCode"] == TAC_SUBCODE_NET_PAY]
+        # Vintage compatibility: 2022/23+ uses STA0366 (Net employee benefits
+        # excluding capitalised); earlier vintages stop at STA0360 (Total
+        # employee benefits excluding capitalised). Try candidates in order.
+        chosen_subcode: str | None = None
+        for candidate in TAC_SUBCODE_NET_PAY_CANDIDATES:
+            if (staff["SubCode"] == candidate).any():
+                chosen_subcode = candidate
+                break
+        if chosen_subcode is None:
+            continue
+        staff = staff[staff["SubCode"] == chosen_subcode]
 
         pivot = (
             staff.pivot_table(
