@@ -1,8 +1,10 @@
 # Pre-commit hooks for PWR workforce elasticity modelling.
 #
-# Purpose: prevent any data, notebook output, or large binary from entering
-# the commit graph, and enforce code quality on Python sources before the
-# CI runs.
+# Focused on code quality. Data files under /data/ and pipeline outputs
+# under /outputs/ are version-controlled (public Crown-Copyright sources
+# under OGL v3.0; see data/DATA_DICTIONARY.md). The previous data-leak
+# and nbstripout hooks have been removed so the source artefacts stay
+# committed.
 #
 # Install once with `pre-commit install` after cloning the repository.
 # `pytest` is wired as a pre-push hook so commits stay fast while pushes
@@ -15,24 +17,16 @@ repos:
     rev: v5.0.0
     hooks:
       - id: trailing-whitespace
+        exclude: ^(data/|outputs/|notebooks/)
       - id: end-of-file-fixer
+        exclude: ^(data/|outputs/|notebooks/)
       - id: check-merge-conflict
       - id: check-yaml
+        exclude: ^(data/|outputs/)
       - id: check-toml
       - id: check-json
+        exclude: ^(notebooks/|outputs/)
       - id: check-case-conflict
-      - id: check-added-large-files
-        args: ["--maxkb=512"]
-
-  - repo: https://github.com/kynan/nbstripout
-    rev: 0.7.1
-    hooks:
-      - id: nbstripout
-        # Strip everything that could carry data: cell outputs, execution
-        # counts, cell metadata, kernel info, and widget state.
-        args:
-          - --drop-empty-cells
-          - --strip-init-cells
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.6.9
@@ -48,14 +42,6 @@ repos:
 
   - repo: local
     hooks:
-      - id: no-data-files
-        name: block data files and /data/ paths
-        description: Refuse to stage data-bearing extensions or anything under /data/ except DATA_DICTIONARY.md.
-        entry: scripts/check_no_data_files.sh
-        language: script
-        pass_filenames: true
-        types: [file]
-
       - id: pytest
         name: pytest (pre-push)
         description: Run the test suite before pushing.
