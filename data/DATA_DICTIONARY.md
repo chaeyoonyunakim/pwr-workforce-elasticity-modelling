@@ -6,10 +6,16 @@
 **Status:** Open-data substitute set assembled in advance of Foundry PWR access
 
 This document is the authoritative reference for the data assets supporting
-the analytical sprint described in `README.md`. The `/data/` directory is
-excluded from version control (see `.gitignore`) with the sole exception of
-this dictionary; all data assets, including any hand-extracted tables, are
-held locally and must be re-acquired from the sources documented below.
+the analytical work described in `README.md`. Every file under `/data/` is
+version-controlled in this repository; all sources are public Crown
+Copyright published under the [Open Government Licence v3.0][^14] (NHS
+England / NHS England Digital), with the addition of the hand-extracted
+REC FOI tables built from public correspondence (see §3.9). Cloning the
+repository gives you everything the pipeline needs to run.
+
+The dictionary remains the source of truth for *provenance*: publisher,
+statistical type, vintage, granularity, licence, source URL, and
+which file in `/data/` came from where.
 
 ---
 
@@ -250,7 +256,7 @@ data page](https://www.england.nhs.uk/statistics/statistical-work-areas/rtt-wait
 **Statistical type:** Case-study disclosure (purposive sample)
 **Vintage held:** Wave 1 (January 2026) and Wave 2 (May 2026)
 **Granularity:** Provider × financial year; top-5 most expensive shifts £
-**Status:** Hand-transcribed from public correspondence — held locally only
+**Status:** Hand-transcribed from public correspondence — version-controlled in this repository
 **Licence:** Public communication; quote with attribution to REC
 
 | File | Content |
@@ -336,3 +342,4 @@ Digital, [year]". The REC FOI extracts retain REC attribution.
 [^11]: Carberry N (Chief Executive, REC). Letter to Layla Moran MP, Chair, House of Commons Health and Social Care Select Committee, 7 May 2026. `../Letter_to_Layla_Moran_MP_House_of_Commons_Health_and_Social_Care_Committee.pdf`.
 [^12]: NHS England Digital. *Organisation Data Service: Other NHS organisations CSV downloads*. https://digital.nhs.uk/services/organisation-data-service/data-search-and-export/csv-downloads/other-nhs-organisations
 [^13]: NHS England. *NHS finance business rules from 2026/27: guidance for integrated care boards and NHS trusts*. https://www.england.nhs.uk/long-read/nhs-finance-business-rules-from-2026-27-guidance-for-integrated-care-boards-and-nhs-trusts/
+[^14]: The National Archives. *Open Government Licence v3.0*. http://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/

@@ -140,13 +140,13 @@ def provider_exclusions(panel_inputs: dict[str, pd.DataFrame]) -> pd.DataFrame:
 
 def _financial_year_to_start(fy: str) -> pd.Timestamp:
     """Map ``"YYYY/YY"`` to the FY start Timestamp (1 April of YYYY, UTC)."""
-    start_year = int(fy.split("/")[0])
+    start_year = int(fy.split("/", 1)[0])
     return pd.Timestamp(year=start_year, month=FY_START_MONTH, day=1, tz="UTC")
 
 
 def _financial_year_to_end(fy: str) -> pd.Timestamp:
     """Map ``"YYYY/YY"`` to the FY end Timestamp (31 March of YYYY+1, UTC)."""
-    start_year = int(fy.split("/")[0])
+    start_year = int(fy.split("/", 1)[0])
     return pd.Timestamp(year=start_year + 1, month=FY_END_MONTH, day=31, tz="UTC")
 
 
@@ -160,7 +160,7 @@ def _date_to_financial_year(ts: pd.Timestamp) -> str:
 
 def _quarter_to_financial_year(period_quarter: str) -> str:
     """Map ``"YYYY/YY QN"`` to the matching ``"YYYY/YY"`` FY label."""
-    return period_quarter.split(" ")[0]
+    return period_quarter.split(" ", 1)[0]
 
 
 def _empty_panel() -> pd.DataFrame:

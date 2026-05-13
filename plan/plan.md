@@ -23,6 +23,21 @@ All task IDs T1–T9 from §7 have been delivered and merged into `main`.
 | T9 Pipeline + manifest | ✅ | `2bdd317` |
 | Headline report snapshot | ✅ | `7668322` (PR #12) |
 | Out-of-sample evaluation (eval branch) | ✅ | `2ce7e21` (PR #13) |
+| Documentation refresh | ✅ | `5a6996e` (PR #14) |
+| Open-data publication (commit /data and /outputs) | ✅ | PR #15 — see "Open-data policy" below |
+
+### Open-data policy
+
+Mid-project the repository owner reviewed all dataset licences and
+confirmed every file under `/data/` is a public Crown-Copyright source
+under the Open Government Licence v3.0 (NHS England / NHS England
+Digital), plus hand-extracted figures from public REC correspondence.
+**The previous data-leak gating policy has been retired.** `/data/`
+and `/outputs/` are now version-controlled directly; the
+`no-data-leak` CI workflow, the `check_no_data_files.sh` script and
+the corresponding pre-commit hook have all been removed. The
+descriptive notebook is now committed with rendered outputs in place
+(previously stripped by `nbstripout`). See PR #15 for the change.
 
 **Adaptation captured during T2.** TAC09 publishes staff cost as
 Permanent vs Other (Bank + Agency + Contract for Services combined),
@@ -338,44 +353,23 @@ produces byte-identical artefacts (modulo embedded timestamps).
 
 ## 8. Cross-cutting quality bar
 
-### 8.1 Data-leak prevention (mandatory, defence-in-depth)
+### 8.1 Data-leak prevention — retired
 
-The repository ships with three coordinated controls, all of which must
-remain in force throughout the project. The agent must not weaken any of
-them without explicit reviewer sign-off.
+This section originally specified a three-layer defence (ignore policy +
+pre-commit + CI) that refused to merge data files. The repository owner
+later confirmed every file under `/data/` is a public Crown-Copyright
+source under the Open Government Licence v3.0, and decided to publish
+the data in-repo. The three controls have been removed:
 
-| Layer | Artefact | What it blocks |
-|---|---|---|
-| Ignore policy | `.gitignore` (`/data/*` with the sole exception of `DATA_DICTIONARY.md`) | Accidental staging of any data file under `/data/`. |
-| Pre-commit (local) | `.pre-commit-config.yaml` running `nbstripout`, `check-added-large-files` (≤ 512 KB), and the local `scripts/check_no_data_files.sh` hook | Notebook outputs, execution counts, cell attachments, widget state, large binaries, and any file with a data-bearing extension or under `/data/`. |
-| Continuous integration | `.github/workflows/no-data-leak.yml` (runs on every PR and push to main) | The same conditions as the pre-commit hook, applied to every tracked file. Acts as the safety net when `git add -f` or a missing local hook bypasses the pre-commit. |
+- `.gitignore` no longer excludes `/data/` or `/outputs/`
+- `scripts/check_no_data_files.sh` has been deleted
+- The `nbstripout` pre-commit hook has been removed (notebooks are now
+  committed with rendered outputs)
+- `.github/workflows/no-data-leak.yml` has been replaced by
+  `.github/workflows/ci.yml`, a plain lint + test workflow
 
-Blocked extensions (case-insensitive, list maintained in
-`scripts/check_no_data_files.sh` and mirrored in the CI workflow): csv,
-tsv, psv, xls, xlsx, xlsm, xlsb, ods, parquet, feather, arrow, orc, avro,
-sav, dta, sas7bdat, rdata, rds, pkl, pickle, joblib, npz, npy, mat, h5,
-hdf5, nc, db, sqlite, sqlite3, pdf, gz, bz2, xz, zst, zip, tar, 7z, rar.
-
-Notebook authoring rules:
-
-- All `.ipynb` files committed to the repository must be output-free.
-  `nbstripout` (installed both as a pre-commit hook and as a git filter
-  via `nbstripout --install`) handles this automatically; do not commit
-  notebooks edited with `nbstripout` disabled.
-- Cell metadata, kernel metadata and Jupyter widget state are also
-  stripped. Do not embed plots inline as base64; persist figures to
-  `outputs/figures/` and reference them from markdown.
-- Do not include `print(df)` or `df.head()` calls that would render
-  patient-identifiable or commercially sensitive content if the notebook
-  ever picked up real PWR data. Replace exploratory prints with assertions
-  on shape or hash.
-
-If the CI check fails, the fix is always:
-
-1. `git rm --cached <file>` to unstage,
-2. move the file under `/data/` (or delete) so the ignore policy catches
-   it next time,
-3. for notebooks, `nbstripout <file>.ipynb` then re-stage.
+The git history retains the full record of the original defence-in-depth
+implementation and the policy reversal for audit. See PR #15.
 
 ### 8.2 Code quality
 
@@ -387,8 +381,8 @@ If the CI check fails, the fix is always:
 - Currency is held in £ (GBP), unscaled. £m is a presentation choice only.
 - Date columns are `pandas.Timestamp` with a documented timezone (UTC).
 - Provider codes are uppercase strings (`pd.Series.astype("string")`).
-- All notebooks are committed in cleared-output form (use the
-  `nbstripout` pre-commit hook).
+- Notebooks may be committed with rendered outputs in place (the
+  `nbstripout` policy has been retired — see §8.1).
 
 ## 9. Decisions reserved for the analyst
 

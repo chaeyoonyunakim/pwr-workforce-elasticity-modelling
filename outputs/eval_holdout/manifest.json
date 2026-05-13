@@ -1,0 +1,46 @@
+{
+  "generated_at": "2026-05-13T06:07:34+00:00",
+  "git_commit": "7668322d600a5e452b8c2b86116211b07b4c7d9c",
+  "input_files": {
+    "TAC-data-published-in-NHS-trust-accounts-for-2020-21.xlsx": "40f68330018061e8bc366133f86c388b5bc93fd230c14ecb9cc4cca35431541a",
+    "TAC-data-published-in-NHS-trusts-accounts-for-2019-20.xlsx": "1f1510be5cb65ff8acd7a3e8177548fcb24ddc9798edd196aad79aa1c51559d5"
+  },
+  "output_files": {
+    "diagnostics/placebo.parquet": "cfe148f2b15328c4bc83f58aa699049a8c008db4d29b64a4062313738f712b19",
+    "diagnostics/pre_trend.parquet": "0034390992450b9a0e55557922c7111ef7e6eddfdb32fc891ec78a84ef9c1763",
+    "features/features.parquet": "8b71bc3e2e3895e5d4597e56ac699a50f833ec1254b4f9477ae08043398d38a1",
+    "manifest.json": "0a0d301095653e7bc78233fc9743c430aeac3987dfdbe4c4bc4cc2252e455a8e",
+    "models/heterogeneity.parquet": "c584f320308277aad283462960740fe5f2247b2765e86cc378407b921b02ec48",
+    "models/robustness.parquet": "41220da5445a8a6429777982dc52136f526a09eb999368c3212085e91036155c",
+    "panel/exclusions.parquet": "b394f69a05788285c229abbe02a534278b53172f95d11b5951d797f6ac035f26",
+    "panel/provider_year_panel.parquet": "3797327851e170b4b2eb0ab2fef4f7b96d9e052ccd17c7296836a78ff4304e5a",
+    "risk_scores.parquet": "6731412bedd422963ddf8f8dbd3bdfedf03db16e608c42cfff840ae15aba9310"
+  },
+  "package_versions": {
+    "linearmodels": "7.0",
+    "matplotlib": "3.10.1",
+    "numpy": "2.4.4",
+    "openpyxl": "3.1.5",
+    "pandas": "2.2.3",
+    "pwr-workforce-elasticity-modelling": "0.1.0",
+    "pyarrow": "24.0.0",
+    "scikit-learn": "1.6.1",
+    "statsmodels": "0.14.6"
+  },
+  "parameters": {
+    "evaluation": "pre_window_holdout",
+    "policy_calendar": {
+      "2019/20": 0,
+      "2020/21": 1
+    },
+    "window": {
+      "WINDOW_END_DATE": "2021-03-31",
+      "WINDOW_END_FY": "2020/21",
+      "WINDOW_START_DATE": "2019-04-01",
+      "WINDOW_START_FY": "2019/20"
+    }
+  },
+  "platform": "win32",
+  "python_version": "3.12.10",
+  "seed": 0
+}

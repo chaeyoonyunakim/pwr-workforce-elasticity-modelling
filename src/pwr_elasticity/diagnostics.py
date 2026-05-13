@@ -137,7 +137,7 @@ def pre_trend_check(
     )
     fit = model.fit(cov_type="clustered", clusters=panel_df[f"_{cluster}"])
 
-    event_year_start = int(event_year.split("/")[0])
+    event_year_start = int(event_year.split("/", 1)[0])
     rows: list[dict[str, float | int | str | bool]] = []
     for col in dummies.columns:
         fy_label = col.removeprefix("fy_")

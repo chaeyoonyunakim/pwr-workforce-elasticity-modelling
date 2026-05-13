@@ -11,12 +11,13 @@ Return (PWR) and audited open-data substitutes.**
 | **Analytical window** | Financial years 2021/22 to 2025/26 inclusive |
 | **TAC vintages held** | 2021/22, 2022/23, 2023/24, 2024/25 (audited NHS trusts) |
 | **Panel size** | 263 provider-year observations × 66–68 NHS trusts × 4 years |
-| **Status** | Pipeline shipped end-to-end; out-of-sample evaluation merged |
+| **Status** | Pipeline shipped end-to-end; out-of-sample evaluation merged; data + outputs version-controlled |
 | **Tests** | 68 passing — see CI |
 | **Headline elasticity** | β = **−0.287**, 95% CI **[−0.434, −0.140]**, cluster-robust SE on ICS, n = 262, 32 ICS clusters |
 
-The rendered headline report is committed at [reports/report.html](reports/report.html).
-The pre-window holdout evaluation is documented at [reports/evaluation.md](reports/evaluation.md).
+The rendered headline report lives at [`outputs/report.html`](outputs/report.html).
+The pre-window holdout evaluation is documented at [`reports/evaluation.md`](reports/evaluation.md).
+The descriptive notebook with all rendered figures is at [`notebooks/01_descriptive.ipynb`](notebooks/01_descriptive.ipynb).
 
 ---
 
@@ -90,10 +91,15 @@ full provenance, vintage, granularity, and licensing):
 | Shift-level cost inversion (case studies) | REC FOI disclosures, Jan and May 2026[^4][^5] |
 | Organisational reference | NHS ODS NHS Trusts and Trust Sites[^12] |
 
-No data files are version-controlled — only `data/DATA_DICTIONARY.md` is
-tracked. Re-acquire all sources from the canonical URLs documented in the
-dictionary; hand-extract the REC FOI tables from the public correspondence
-cited there.
+**Data are version-controlled.** Every file under `/data/` is a public
+Crown-Copyright source published under the Open Government Licence v3.0
+(NHS England / NHS England Digital), plus hand-extracted figures from
+public REC correspondence. Cloning the repository gives you everything
+the pipeline needs to run; no separate data download is required. The
+two largest files (RTT February 2026 extract at ~80 MB; HCHS Core 1 at
+~45 MB) exceed GitHub's 50 MB display warning but are well under the
+100 MB hard limit. See [`data/DATA_DICTIONARY.md`](data/DATA_DICTIONARY.md)
+for full source URLs, vintages and licensing.
 
 ## 5. Repository structure
 
@@ -102,10 +108,10 @@ cited there.
 ├── README.md                            this document
 ├── LICENSE
 ├── pyproject.toml                       Python package, deps, ruff/black/pytest config
-├── .pre-commit-config.yaml              local data-leak + lint + test hooks
-├── .gitignore                           excludes /data/* and /outputs/
+├── .pre-commit-config.yaml              lint + format + pytest-on-push hooks
+├── .gitignore                           excludes Python build artefacts; /data and /outputs are tracked
 ├── .github/workflows/
-│   └── no-data-leak.yml                 CI gate (paths, extensions, notebook outputs)
+│   └── ci.yml                           lint + pytest CI
 ├── plan/
 │   └── plan.md                          agent build plan, T1–T9 task DAG
 ├── src/pwr_elasticity/
@@ -121,16 +127,35 @@ cited there.
 │   └── pipeline.py                      CLI entry point
 ├── tests/                               68 tests, fixture-based
 ├── notebooks/
-│   └── 01_descriptive.ipynb             T5 descriptive analysis (output-stripped)
+│   └── 01_descriptive.ipynb             T5 descriptive analysis (rendered with outputs)
 ├── scripts/
-│   ├── check_no_data_files.sh           data-leak rule shared with CI
 │   └── evaluate_holdout.py              out-of-sample evaluation harness
-├── reports/                             tracked report snapshots
-│   ├── README.md
-│   ├── report.html                      headline result HTML
+├── reports/                             narrative write-ups
+│   ├── README.md                        index + viewing instructions for outputs/report.html
 │   └── evaluation.md                    pre-window holdout write-up
-└── data/                                gitignored except DATA_DICTIONARY.md
-    └── DATA_DICTIONARY.md               authoritative source manifest
+├── data/                                public sources under OGL v3.0
+│   ├── DATA_DICTIONARY.md               authoritative source manifest
+│   ├── tac_provider_accounts/           TAC 2021/22–2024/25
+│   ├── eval_holdout/tac_provider_accounts/   TAC 2019/20–2020/21 (holdout)
+│   ├── workforce_stats/                 HCHS Core 1, 3, 5, 14 + turnover
+│   ├── vacancy_stats/                   NHS Vacancy Statistics tables
+│   ├── staff_earnings/                  NHS Staff Earnings Estimates
+│   ├── policy_timeline/                 NHSE agency price card
+│   ├── ae_performance/                  Monthly A&E time series
+│   ├── rtt_performance/feb26/           RTT February 2026 full extract
+│   ├── rec_foi/                         REC FOI shift-cost extracts + notes
+│   ├── reference/                       NHS Trusts ODS (etr)
+│   └── Letter_to_Layla_Moran_MP_...pdf  Provenance for REC FOI Wave 2
+└── outputs/                             regenerated pipeline artefacts (tracked snapshot)
+    ├── report.html                      headline result HTML — canonical
+    ├── manifest.json                    SHA-256 hashes + package versions + git commit
+    ├── panel/                           provider × FY panel parquet
+    ├── features/                        feature-engineered frame parquet
+    ├── models/                          elasticity / heterogeneity / robustness parquet
+    ├── diagnostics/                     pre-trend / placebo / VIF parquet
+    ├── figures/descriptive/             notebook-rendered PNGs
+    ├── risk_scores.parquet              provider EVfM risk scores
+    └── eval_holdout/                    holdout-evaluation parallel tree
 ```
 
 ## 6. Running the pipeline
@@ -140,14 +165,10 @@ cited there.
 pip install -e ".[dev]"
 pre-commit install
 
-# 2. Re-acquire data (see DATA_DICTIONARY.md for URLs)
-# Drop the TAC XLSXs into data/tac_provider_accounts/, HCHS Core 1
-# into data/workforce_stats/hchs_oct_2025/, etc.
-
-# 3. Run end-to-end
+# 2. Run end-to-end (data is already in the repo)
 python -m pwr_elasticity.pipeline
 
-# 4. Outputs land in outputs/
+# 3. Outputs are rewritten in outputs/
 #    - panel/provider_year_panel.parquet
 #    - features/features.parquet
 #    - models/elasticity_estimates.parquet
@@ -155,6 +176,10 @@ python -m pwr_elasticity.pipeline
 #    - risk_scores.parquet
 #    - report.html
 #    - manifest.json  (SHA-256 hashes + git commit + package versions)
+
+# 4. Out-of-sample holdout evaluation (optional)
+python scripts/evaluate_holdout.py
+#    writes outputs/eval_holdout/ — see reports/evaluation.md
 ```
 
 The repository follows the NHS England Reproducible Analytical Pipelines
@@ -164,19 +189,20 @@ inputs produces byte-identical artefacts modulo embedded timestamps.
 
 ## 7. Quality gates
 
-Three layers, all running on every PR:
+Code-quality gates only — data and outputs are intentionally tracked
+(all sources are public Crown-Copyright under OGL v3.0):
 
-1. **Ignore policy** — `.gitignore` excludes `/data/*` (except
-   `DATA_DICTIONARY.md`) and `/outputs/`.
-2. **Local pre-commit hooks** — `nbstripout`, `check-added-large-files`
-   (≤ 512 KB), ruff + ruff-format, black, plus a custom
-   `check_no_data_files.sh` enforcing the same path / extension rules as
-   CI. Pytest runs on push.
-3. **CI workflow** (`.github/workflows/no-data-leak.yml`) — refuses any
-   tracked file under `/data/` except the dictionary, any file with a
-   data-bearing extension (csv / xlsx / parquet / pdf / etc.), or any
-   Jupyter notebook carrying outputs, execution counts, attachments or
-   widget state.
+1. **Local pre-commit hooks** — ruff + ruff-format, black, the standard
+   pre-commit-hooks set (trailing whitespace, end-of-file, yaml/toml/json
+   validity, merge conflicts, case conflicts). Pytest runs on push.
+2. **CI workflow** (`.github/workflows/ci.yml`) — `ruff check .`,
+   `black --check .`, and `pytest -q` on every PR and every push to
+   `main`.
+
+An earlier project iteration ran a `no-data-leak` workflow that
+actively refused to merge tracked data files. That workflow has been
+removed alongside the decision to publish all open-data sources
+in-repo; the commit history records the policy reversal.
 
 ## 8. Out-of-sample evaluation
 
@@ -237,3 +263,19 @@ quote with attribution to the Recruitment & Employment Confederation.
 [^11]: NHS England. *Consultant-led Referral to Treatment Waiting Times*. Statistical work area. https://www.england.nhs.uk/statistics/statistical-work-areas/rtt-waiting-times/
 [^12]: NHS England Digital. *Organisation Data Service: Other NHS organisations CSV downloads*. https://digital.nhs.uk/services/organisation-data-service/data-search-and-export/csv-downloads/other-nhs-organisations
 [^13]: NHS England. *Reproducible Analytical Pipelines (RAP) Strategy*. https://transform.england.nhs.uk/key-tools-and-info/reproducible-analytical-pipelines/
+
+---
+
+## Build acknowledgement
+
+This repository was built using **[Claude Code](https://claude.com/claude-code)**
+with **Anthropic Claude Opus 4.7 (High mode)** as the implementing model,
+under the repository owner's supervision and guardrails. The owner set
+the research question, the analytical window, the open-data policy and
+the data-leak controls; reviewed and approved every pull request before
+merge; and made the final calls on identification strategy, scope
+trade-offs and the decision to publish the source datasets in-repo.
+Claude Code produced the implementation — readers, panel assembly,
+features, estimators, diagnostics, report renderer, pipeline,
+manifest, tests, CI configuration and prose — within those guardrails.
+The build history is fully auditable in the merged PRs (#1 through #15).

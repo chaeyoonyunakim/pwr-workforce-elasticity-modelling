@@ -217,12 +217,9 @@ __marimo__/
 # Streamlit
 .streamlit/secrets.toml
 
-# Local datasets — only the data dictionary is tracked; everything else
-# under /data/ stays local. Re-fetch bulk sources from URLs documented in
-# data/DATA_DICTIONARY.md.
-/data/*
-!/data/DATA_DICTIONARY.md
-
-# Build pipeline outputs (panel, features, models, figures, report).
-# All deliverables regenerate from /data/ + /src/.
-/outputs/
+# /data and /outputs are intentionally version-controlled.
+# Every file under /data/ is a public Crown-Copyright source published
+# under the Open Government Licence v3.0 (NHS England / NHS England
+# Digital), plus hand-extracted figures from public REC correspondence.
+# Every file under /outputs/ is a regenerated artefact of the pipeline.
+# See data/DATA_DICTIONARY.md and reports/README.md for provenance.
