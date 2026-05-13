@@ -28,7 +28,17 @@ TAC_WORKSHEET_STAFF: str = "TAC09 Staff"
 TAC_MAINCODE_TOTAL_CY: str = "A09CY01"  # Total CY pay
 TAC_MAINCODE_PERMANENT_CY: str = "A09CY01P"  # Permanent (substantive) CY pay
 TAC_MAINCODE_OTHER_CY: str = "A09CY01O"  # Other (bank + agency + contract) CY pay
-TAC_SUBCODE_NET_PAY: str = "STA0366"  # Net employee benefits expenditure
+# Net-pay subcode preferences. The 2022/23 and later TAC vintages publish
+# STA0366 (Net employee benefits expenditure, excluding capitalised costs).
+# Earlier vintages (e.g. 2019/20 published April 2021) stop at STA0360
+# (Total employee benefits costs, excluding capitalised costs); the gap
+# between the two is capitalised employee benefits expenditure (STA0365),
+# which is tiny relative to substantive + other staff pay. Readers should
+# try these subcodes in order and use the first one that is populated.
+TAC_SUBCODE_NET_PAY_CANDIDATES: tuple[str, ...] = ("STA0366", "STA0360")
+
+# Retained for backward compatibility — first preference subcode.
+TAC_SUBCODE_NET_PAY: str = TAC_SUBCODE_NET_PAY_CANDIDATES[0]
 
 # TAC values are reported in £ thousands; multiplier to convert to £.
 TAC_THOUSANDS_TO_GBP: int = 1_000
