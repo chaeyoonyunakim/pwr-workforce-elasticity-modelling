@@ -1,13 +1,22 @@
 # PWR workforce elasticity modelling
 
-**Estimating the responsiveness of NHS provider bank pay expenditure to
-agency-restriction policy, using the Provider Workforce Return (PWR) and
-audited open-data substitutes.**
+**Estimating the responsiveness of NHS provider non-substantive staff
+expenditure to agency-restriction policy, using the Provider Workforce
+Return (PWR) and audited open-data substitutes.**
 
-**Analytical window:** financial years 2021/22 to 2025/26 inclusive.
-Audited TAC data is available for 2021/22–2024/25; the in-flight 2025/26
-year is observed through monthly operational sources and through the
-in-year policy treatment indicators.
+[![CI](https://github.com/chaeyoonyunakim/pwr-workforce-elasticity-modelling/actions/workflows/no-data-leak.yml/badge.svg)](https://github.com/chaeyoonyunakim/pwr-workforce-elasticity-modelling/actions/workflows/no-data-leak.yml)
+
+| | |
+|---|---|
+| **Analytical window** | Financial years 2021/22 to 2025/26 inclusive |
+| **TAC vintages held** | 2021/22, 2022/23, 2023/24, 2024/25 (audited NHS trusts) |
+| **Panel size** | 263 provider-year observations × 66–68 NHS trusts × 4 years |
+| **Status** | Pipeline shipped end-to-end; out-of-sample evaluation merged |
+| **Tests** | 68 passing — see CI |
+| **Headline elasticity** | β = **−0.287**, 95% CI **[−0.434, −0.140]**, cluster-robust SE on ICS, n = 262, 32 ICS clusters |
+
+The rendered headline report is committed at [reports/report.html](reports/report.html).
+The pre-window holdout evaluation is documented at [reports/evaluation.md](reports/evaluation.md).
 
 ---
 
@@ -21,54 +30,44 @@ and zero off-framework procurement by 2029[^3]. The policy theory of change
 assumes that restricted agency provision will be substituted by lower-cost
 substantive or staff Bank shifts, generating net savings.
 
-Emerging evidence challenges this assumption. Freedom of Information requests
-to a number of English NHS trusts, conducted by the Recruitment & Employment
-Confederation (REC) and disclosed in January and May 2026, indicate
-shift-level cost inversion in several providers: at Imperial College
-Healthcare NHS Trust in 2025/26 the mean cost of the five most expensive
-Bank shifts was £5,509 against £2,116 for the five most expensive agency
-shifts; at Manchester University NHS Foundation Trust, total Bank
+Emerging evidence challenges this assumption. Freedom of Information
+requests to a number of English NHS trusts, conducted by the Recruitment &
+Employment Confederation (REC) and disclosed in January and May 2026,
+indicate shift-level cost inversion in several providers: at Imperial
+College Healthcare NHS Trust in 2025/26 the mean cost of the five most
+expensive Bank shifts was £5,509 against £2,116 for the five most expensive
+agency shifts; at Manchester University NHS Foundation Trust, total Bank
 expenditure rose from £60.2m in 2020/21 to £114.3m in 2024/25 while agency
 expenditure fell by approximately £2.7m over the same period[^4][^5].
 
 This pattern is consistent with a workforce-shortage explanation: under
 binding agency caps, providers face inelastic demand for temporary cover and
-pay a premium through the staff Bank instead. The empirical question is the
-**magnitude and non-linearity of the substitution** — the elasticity of Bank
-pay expenditure with respect to agency-rule intensity, and whether the
-substitution curve exhibits a discontinuity above a defined intensity
-threshold.
+pay a premium through the staff Bank instead.
 
 ## 2. Research questions
 
-- **Q1 (elasticity).** What is the contemporaneous and lagged elasticity of
-  provider-level Bank pay expenditure with respect to a binding change in
-  the agency price cap or framework rule set, conditional on substantive
-  workforce capacity and operational demand pressure?
-- **Q2 (tipping point).** At what level of agency-rule intensity, measured
-  as override frequency per 100 substantive FTE, does the Bank-to-agency
-  cost ratio cease to fall and begin to rise (the displacement
-  inflection)?
+- **Q1 (elasticity).** What is the contemporaneous elasticity of
+  provider-level non-substantive pay expenditure with respect to the
+  cumulative intensity of in-window agency-rule policy, conditional on
+  substantive workforce capacity and operational demand pressure?
+- **Q2 (tipping point).** Does the relationship exhibit a non-linearity
+  beyond a defined policy-intensity threshold?
 - **Q3 (heterogeneity).** Does the elasticity differ systematically across
-  ICBs, provider type (acute / mental health / community), and care
-  setting?
+  ICBs and provider type (acute / mental health / community / ambulance /
+  specialist)?
 
-## 3. Methodology
+## 3. Data adaptation note
 
-The project is scoped as a one-week analytical sprint:
+The plan was originally specified with `bank_pay_gbp` and `agency_pay_gbp`
+as separate outcome variables. **TAC does not publish the Bank-versus-Agency
+split as a separate line item**: TAC09 Staff reports staff cost as
+*Permanent* (substantive) vs *Other* (Bank + Agency + Contract for Services
+combined). The production pipeline therefore models the elasticity of
+`other_staff_pay_gbp` with respect to policy intensity; the bank-vs-agency
+cost-inversion finding is supported separately by the REC FOI extracts
+([data/DATA_DICTIONARY.md §3.9](data/DATA_DICTIONARY.md)).
 
-| Day | Activity |
-|---|---|
-| 1–2 | Construct the provider-month panel by joining PWR, ESR turnover, NHS Vacancy Statistics, and policy-timeline variables. |
-| 3 | Feature engineering: derive `Bank_Agency_Ratio`, `Override_Intensity` (overrides per 100 substantive FTE), and a `TTH_Efficiency` deviation from national mean Time-to-Hire. |
-| 4 | Estimate the elasticity using a fixed-effects panel specification with provider and time fixed effects; complement with a Random Forest regressor on `Monthly_Override_Count` to characterise non-linearity and produce a weighted provider risk score. |
-| 5 | Synthesise outputs into an Economic Value-for-Money dashboard, identifying ICBs at risk of failing the 30% agency reduction target. |
-
-Statistical specification, identifying assumptions and standard-error
-clustering will be specified in a separate analysis plan prior to model
-fitting.
-
-## 4. Data
+## 4. Data sources
 
 The primary outcome and treatment data live in the **Provider Workforce
 Return (PWR)**, NHS England's monthly temporary-staffing collection, hosted
@@ -82,7 +81,7 @@ full provenance, vintage, granularity, and licensing):
 
 | Domain | Source |
 |---|---|
-| Provider bank and agency expenditure (annual, audited) | Trust Accounts Consolidation (TAC), NHS England[^6] |
+| Provider pay split (annual, audited) | Trust Accounts Consolidation (TAC), NHS England[^6] |
 | Substantive workforce (Staff in Post FTE) | NHS Workforce Statistics, NHS England[^7] |
 | Vacancies (open proxy for budgeted–actual delta) | NHS Vacancy Statistics, NHS England[^8] |
 | Pay calibration (£/FTE by AfC band) | NHS Staff Earnings Estimates, NHS England[^9] |
@@ -100,57 +99,119 @@ cited there.
 
 ```
 .
-├── README.md                         this document
-├── LICENSE                           MIT (project code)
-├── .gitignore                        excludes /data/* except DATA_DICTIONARY.md
+├── README.md                            this document
+├── LICENSE
+├── pyproject.toml                       Python package, deps, ruff/black/pytest config
+├── .pre-commit-config.yaml              local data-leak + lint + test hooks
+├── .gitignore                           excludes /data/* and /outputs/
+├── .github/workflows/
+│   └── no-data-leak.yml                 CI gate (paths, extensions, notebook outputs)
 ├── plan/
-│   └── plan.md                       agent-runnable build plan (requirements, tasks, acceptance criteria)
-└── data/
-    ├── DATA_DICTIONARY.md            authoritative source manifest, variable mapping
-    ├── tac_provider_accounts/        TAC 2021/22–2024/25 (NHSE OGL v3.0)
-    ├── workforce_stats/              HCHS staff in post and turnover (NHSE OGL v3.0)
-    ├── vacancy_stats/                NHS Vacancy Statistics Apr-2015 to Dec-2025
-    ├── staff_earnings/               NHS Staff Earnings Estimates to Oct-2025
-    ├── policy_timeline/              Agency price card and policy event dates
-    ├── ae_performance/               Monthly A&E time series to Mar-2026
-    ├── rtt_performance/              RTT full extract Feb-2026
-    ├── rec_foi/                      Hand-extracted REC FOI shift-cost data (local only)
-    ├── reference/                    NHS Trusts ODS reference (etr)
-    └── Letter_to_Layla_Moran_MP...   Provenance for REC FOI extracts (Wave 2)
+│   └── plan.md                          agent build plan, T1–T9 task DAG
+├── src/pwr_elasticity/
+│   ├── __init__.py
+│   ├── _constants.py                    analytical window + TAC SubCode candidates
+│   ├── io.py                            8 source readers (T2)
+│   ├── panel.py                         build_panel, provider_exclusions (T3)
+│   ├── features.py                      compute_features, encode_policy_intensity (T4)
+│   ├── models.py                        TWFE, RF, heterogeneity, robustness (T6)
+│   ├── diagnostics.py                   pre-trend, placebo, VIF (T7)
+│   ├── report.py                        risk scores + HTML report renderer (T8)
+│   ├── manifest.py                      reproducibility manifest (T9)
+│   └── pipeline.py                      CLI entry point
+├── tests/                               68 tests, fixture-based
+├── notebooks/
+│   └── 01_descriptive.ipynb             T5 descriptive analysis (output-stripped)
+├── scripts/
+│   ├── check_no_data_files.sh           data-leak rule shared with CI
+│   └── evaluate_holdout.py              out-of-sample evaluation harness
+├── reports/                             tracked report snapshots
+│   ├── README.md
+│   ├── report.html                      headline result HTML
+│   └── evaluation.md                    pre-window holdout write-up
+└── data/                                gitignored except DATA_DICTIONARY.md
+    └── DATA_DICTIONARY.md               authoritative source manifest
 ```
 
-## 6. Reproducibility
+## 6. Running the pipeline
+
+```bash
+# 1. Install
+pip install -e ".[dev]"
+pre-commit install
+
+# 2. Re-acquire data (see DATA_DICTIONARY.md for URLs)
+# Drop the TAC XLSXs into data/tac_provider_accounts/, HCHS Core 1
+# into data/workforce_stats/hchs_oct_2025/, etc.
+
+# 3. Run end-to-end
+python -m pwr_elasticity.pipeline
+
+# 4. Outputs land in outputs/
+#    - panel/provider_year_panel.parquet
+#    - features/features.parquet
+#    - models/elasticity_estimates.parquet
+#    - diagnostics/{pre_trend,placebo,vif}.parquet
+#    - risk_scores.parquet
+#    - report.html
+#    - manifest.json  (SHA-256 hashes + git commit + package versions)
+```
 
 The repository follows the NHS England Reproducible Analytical Pipelines
-(RAP) principles[^13]:
+(RAP) principles[^13]. The manifest pins source-file hashes, package
+versions, the git commit and the random seed; re-running against the same
+inputs produces byte-identical artefacts modulo embedded timestamps.
 
-1. Clone the repository and create a Python environment from the project's
-   `pyproject.toml` (or `requirements.txt`) once added.
-2. Run the data acquisition script to repopulate `/data/` from the URLs in
-   `data/DATA_DICTIONARY.md`. All bulk artefacts are re-fetchable; the REC
-   FOI tables must be hand-transcribed from the referenced public
-   correspondence on first run.
-3. Execute the analytical pipeline. Determinism is preserved by pinning the
-   data vintage in each source filename (e.g. `Oct-25`, `Feb-26`).
+## 7. Quality gates
 
-## 7. Limitations and data caveats
+Three layers, all running on every PR:
 
-- **PWR access is required for the headline analysis.** Open-data
-  substitutes provide annual rather than monthly cadence for the bank /
-  agency expenditure split and do not contain override counts or Time-to-Hire
-  fields. Conclusions drawn from the open-data prototype must be replicated
-  on PWR before publication.
+1. **Ignore policy** — `.gitignore` excludes `/data/*` (except
+   `DATA_DICTIONARY.md`) and `/outputs/`.
+2. **Local pre-commit hooks** — `nbstripout`, `check-added-large-files`
+   (≤ 512 KB), ruff + ruff-format, black, plus a custom
+   `check_no_data_files.sh` enforcing the same path / extension rules as
+   CI. Pytest runs on push.
+3. **CI workflow** (`.github/workflows/no-data-leak.yml`) — refuses any
+   tracked file under `/data/` except the dictionary, any file with a
+   data-bearing extension (csv / xlsx / parquet / pdf / etc.), or any
+   Jupyter notebook carrying outputs, execution counts, attachments or
+   widget state.
+
+## 8. Out-of-sample evaluation
+
+The model was evaluated against pre-window TAC vintages (2019/20 and
+2020/21) using `scripts/evaluate_holdout.py`. Headline finding: the
+pipeline is structurally sound — every data-side stage works on unseen
+vintages after a one-line reader fix (legacy SubCode `STA0360` added to
+the candidate list alongside `STA0366`), and identification-requiring
+stages (TWFE primary, placebo, VIF) degrade *gracefully* on the two-year
+holdout rather than returning meaningless coefficients. Full write-up at
+[reports/evaluation.md](reports/evaluation.md).
+
+## 9. Limitations and data caveats
+
+- **PWR access is required for the bank-vs-agency elasticity.** TAC
+  publishes the Permanent vs Other split only; the Bank-vs-Agency split
+  lives in PWR (Foundry-only) or in the REC FOI case-study extracts.
+- **TAC NHS-trusts file only.** The Foundation Trust panel is published
+  as a separate TAC dataset and is not yet loaded; coverage is therefore
+  66–68 providers per year rather than the full ~213.
 - **The REC FOI sample is purposive, not representative.** REC selected
   trusts to illustrate cost inversion; the figures are useful as
   case-study calibration but not as a panel estimator.
-- **HCHS substantive workforce statistics exclude bank staff.** The
-  denominator for `Override_Intensity` therefore measures substantive
-  capacity, not total filled capacity.
+- **HCHS substantive workforce statistics exclude bank staff.** All
+  workforce denominators measure substantive capacity, not total filled
+  capacity.
+- **Pre-trend rejects parallel trends and the placebo p-value is ~0.29.**
+  The headline coefficient is reported as a *policy-period descriptive
+  elasticity*, not a clean causal effect — see the editorial caveat box
+  in the rendered report.
 - **Model Health System retention compartments and ward-level safety
-  incident data (NRLS / LFPSE) are not in scope** for the open-data
+  incident data (NRLS / LFPSE) are out of scope** for the open-data
   prototype.
 
-## 8. Licence and attribution
+## 10. Licence and attribution
 
 Project code is licensed under the terms of the `LICENSE` file. All NHS
 England and NHS Digital data products incorporated in this analysis are
